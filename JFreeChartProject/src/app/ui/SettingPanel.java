@@ -37,8 +37,8 @@ public class SettingPanel extends JFrame {
 	private JLabel errorMessage = new JLabel("Znaleziono b³êdy: ");
 	private JLabel videoStartTimeLabel = new JLabel("Czas rozpoczêcia wideo");
 	private JLabel graphStartTimeLabel = new JLabel("Czas rozpoczêcia wykresu");
-	private JTextField selectedFilePath = new JTextField("", 50);
-	private JTextField selectedVideoPath = new JTextField("", 50);
+	private JTextField selectedFilePath = new JTextField("C:\\Users\\sherasymenko\\Downloads\\wykres\\Svieta_badanie1_p_s16_l17_u18_2-000_00342816.txt", 50);
+	private JTextField selectedVideoPath = new JTextField("C:\\Users\\sherasymenko\\Downloads\\wykres\\Svieta_badanie1_p_s16_l17_u18_2.mp4", 50);
 	private JTextField videoStartTime = new JTextField(10);
 	private JTextField graphStartTime = new JTextField(10);
 	private JPanel newPanel = new JPanel();

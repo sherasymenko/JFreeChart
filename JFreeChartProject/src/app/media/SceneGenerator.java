@@ -46,7 +46,9 @@ public class SceneGenerator {
 				setCurrentlyPlaying(newPlayer);
 			}
 		});
+		player.setStartTime(new Duration(new Double(3000)));
 		mediaView.setMediaPlayer(player);
+	
 		setCurrentlyPlaying(mediaView.getMediaPlayer());
 		layout.setStyle("-fx-background-color: cornsilk; -fx-font-size: 20; -fx-padding: 20; -fx-alignment: center;");
 		layout.getChildren()

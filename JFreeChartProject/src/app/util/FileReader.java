@@ -66,14 +66,21 @@ public class FileReader {
 		String line;
 		int currentLineIndex = 0;
 		int currentDataIndex = 0;
+		double period = new Double(75);
+		double startTime = new Double(3);
+		int numberOfLineToPass = (int) Math.ceil(startTime/(1/period));
+		System.out.println("numberOfLineToPass  " + numberOfLineToPass);
+
 		while ((line = br.readLine()) != null) {
 			line = line.trim();
-			if (currentLineIndex > headerLineIndex) {
-				String lineData[] = line.split(";");
-				for (int i = 0; i < headerNumber; i++) {
-					data[currentDataIndex][i] = new String(lineData[i]);
+			
+				String lineData[] = line.split(";");if (currentLineIndex > headerLineIndex) {
+				if (currentLineIndex > numberOfLineToPass) {
+					for (int i = 0; i < headerNumber; i++) {
+						data[currentDataIndex][i] = new String(lineData[i]);
+					}
+					currentDataIndex++;
 				}
-				currentDataIndex++;
 			}
 			currentLineIndex++;
 		}
