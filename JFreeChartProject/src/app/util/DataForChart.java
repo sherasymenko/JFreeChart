@@ -1,5 +1,8 @@
 package app.util;
 
+import java.util.List;
+import java.util.Map;
+
 public class DataForChart {
 	private String chartName;
 	private String[] headers;
@@ -9,6 +12,7 @@ public class DataForChart {
 	private double xMin;
 	private double yMax;
 	private double yMin;
+	private List allData;
 
 	public DataForChart(String chartName, String[] headers, String[][] data) {
 		super();
@@ -21,6 +25,8 @@ public class DataForChart {
 		this.yMax = getMaxValue(data);
 		this.yMin = getMinValue(data);
 	}
+	
+
 
 	public double getMaxValue(String[][] data) {
 		double maxValue = new Double(data[0][1]);

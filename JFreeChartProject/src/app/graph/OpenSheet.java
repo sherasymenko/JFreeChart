@@ -2,6 +2,8 @@ package app.graph;
 
 import java.awt.BorderLayout;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,12 +30,13 @@ public class OpenSheet extends ApplicationFrame {
 	private XYSeries yaw = new XYSeries("Yaw");
 
 	private String[][] data;
+	private Map<String, String[]> allData = new HashMap<String, String[]>();
 	private JPanel content = new JPanel(new BorderLayout());
 	private XYSeriesCollection dataset = new XYSeriesCollection();
 	private Timer timer;
 	private FileReader reader;
 	private String[] headers;
-	private DataForChart dataForChart;
+	//private DataForChart dataForChart;
 	private String chartTitle;
 	private ChartPanel chartPanel;
 	private JFreeChart xylineChart;
@@ -57,11 +60,12 @@ public class OpenSheet extends ApplicationFrame {
 		reader = new FileReader(filePath);
 		headers = reader.getHeaders();
 		data = reader.getData();
-		dataForChart = new DataForChart(chartTitle, headers, data);
+		allData = reader.getAllData();
+		//dataForChart = new DataForChart(chartTitle, headers, allData);
 		xylineChart = ChartFactory.createXYLineChart(chartTitle, "Time", "Value", createDataset(),
 				PlotOrientation.VERTICAL, true, true, false);
-		xylineChart.getXYPlot().getDomainAxis().setRange(dataForChart.getxMin(), dataForChart.getxMax());
-		xylineChart.getXYPlot().getRangeAxis().setRange(dataForChart.getyMin(), dataForChart.getyMax());
+		xylineChart.getXYPlot().getDomainAxis().setRange(reader.getxMin(), reader.getxMax());
+		xylineChart.getXYPlot().getRangeAxis().setRange(reader.getyMin(), reader.getyMax());
 		chartPanel.setChart(xylineChart);
 		chartPanel.setMouseZoomable(true);
 	}
@@ -75,8 +79,8 @@ public class OpenSheet extends ApplicationFrame {
 			timeTest = 0;
 		}
 		timer = new Timer();
-		draw = new Draw(dataForChart, timer, index, timeTest, isClean);
-		long period = (long) ((1 / dataForChart.getPeriod() * 1000) / speed);
+		draw = new Draw(reader, timer, index, timeTest, isClean, filePath);
+		long period = (long) ((1 / reader.getPeriod() * 1000) / speed);
 		timer.schedule(draw, 0, period);
 	}
 
@@ -87,12 +91,12 @@ public class OpenSheet extends ApplicationFrame {
 	}
 
 	private XYDataset createDataset() {
-		int dataNumber = reader.getDataNumber();
+		/*int dataNumber = reader.getDataNumber();
 		int headerNumber = reader.getHeaderNumber();
 		for (int i = 0; i < dataNumber; i++) {
 			for (int j = 0; j < headerNumber; j++) {
 			}
-		}
+		}*/
 		dataset.addSeries(roll);
 		dataset.addSeries(pitch);
 		dataset.addSeries(yaw);
@@ -118,18 +122,49 @@ public class OpenSheet extends ApplicationFrame {
 		private DataForChart dataForChart;
 		private int i = 0;
 		private double time = 0;
-
+		String filePath = "";
+private FileReader reader = null;
 		public Draw(DataForChart dataForChart, Timer timer, int index, double time, boolean isClean) {
 			this.dataForChart = dataForChart;
 			i = index;
 			this.time = time;
+			
 		}
 
+		
+		public Draw(FileReader reader, Timer timer, int index, double time, boolean isClean, String filePath) {
+			this.reader = reader;
+			i = index;
+			this.time = time;
+			this.filePath = filePath;
+		}
 		public Draw() {
 		}
 
 		public void run() {
 
+			
+			try {
+				if ((reader.getLineNumber(filePath)-1) != i) {
+					String[][] dataTest = dataForChart.getData();
+					double rollValue = new Double(dataTest[i][1]);
+					double pitchValue = new Double(dataTest[i][2]);
+					double yawValue = new Double(dataTest[i][3]);
+					roll.add(time, rollValue);
+					pitch.add(time, pitchValue);
+					yaw.add(time, yawValue);
+					time = time + 1 / dataForChart.getPeriod();
+					i++;
+				} else {
+					SettingPanel.setStartButtonOnReset();
+					timer.cancel();
+				}
+			} catch (NumberFormatException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
 			if (data.length != i) {
 				String[][] dataTest = dataForChart.getData();
 				double rollValue = new Double(dataTest[i][1]);
