@@ -1,4 +1,4 @@
-package app.ui;
+package app.main;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +30,6 @@ import javafx.scene.media.MediaException;
 @SuppressWarnings("serial")
 public class SettingPanel extends JFrame {
 	private static JButton start = new JButton("Start");
-	private JButton reset = new JButton("Resetuj video");
 	private JButton resetSetting = new JButton("Wyczyœæ ustawienia");
 	private JButton refreshSelectedFile = new JButton("O");
 	private JButton selectFile = new JButton("wybierz plik...");
@@ -37,10 +38,10 @@ public class SettingPanel extends JFrame {
 	private JLabel errorMessage = new JLabel("Znaleziono b³êdy: ");
 	private JLabel videoStartTimeLabel = new JLabel("Czas rozpoczêcia wideo");
 	private JLabel graphStartTimeLabel = new JLabel("Czas rozpoczêcia wykresu");
-	private JTextField selectedFilePath = new JTextField("C:\\Users\\sherasymenko\\Downloads\\wykres\\Svieta_badanie1_p_s16_l17_u18_2-000_00342816.txt", 50);
-	private JTextField selectedVideoPath = new JTextField("C:\\Users\\sherasymenko\\Downloads\\wykres\\Svieta_badanie1_p_s16_l17_u18_2.mp4", 50);
-	private JTextField videoStartTime = new JTextField(10);
-	private JTextField graphStartTime = new JTextField(10);
+	private JTextField selectedFilePath = new JTextField("D:\\STUDIA\\PRACA_MAGISTERSKA\\Nagrania\\11.02.2017\\txt\\Svieta_badanie1_p_s16_l17_u18_2-000_00342816.txt", 50);
+	private JTextField selectedVideoPath = new JTextField("D:\\STUDIA\\PRACA_MAGISTERSKA\\Nagrania\\11.02.2017\\Video\\Svieta_badanie1_p_s16_l17_u18_2.mp4", 50);
+	private JTextField videoStartTime = new JTextField("00:00:00.000", 12);
+	private JTextField graphStartTime = new JTextField("00:00:00.000", 12);
 	private JPanel newPanel = new JPanel();
 	private JPanel line1 = new JPanel();
 	private JPanel line2 = new JPanel();
@@ -74,7 +75,7 @@ public class SettingPanel extends JFrame {
 		refreshSelectedFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					chart.addData(selectedFilePath.getText());
+					chart.addData(selectedFilePath.getText(), getTimeInMilis(graphStartTime.getText()));
 				} catch (IOException e1) {
 				}
 			}
@@ -93,7 +94,7 @@ public class SettingPanel extends JFrame {
 		refreshSelectedVideo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					player.selectVideo(selectedVideoPath.getText());
+					player.selectVideo(selectedVideoPath.getText(), getTimeInMilis(videoStartTime.getText()));
 				} catch (MediaException ex) {
 				}
 			}
@@ -109,25 +110,27 @@ public class SettingPanel extends JFrame {
 				}
 			}
 		});
-		start.addActionListener(new ActionListener() {
-			List<JRadioButton> radioList = Arrays.asList(speed1, speed2, speed3);
-
-			public void actionPerformed(ActionEvent e) {
-				if (start.getText().equals("Start")) {
-					chart.startDraw(selectedFilePath.getText(), false, getSpeed(radioList));
-					player.startButton(selectedVideoPath.getText(), false, getSpeed(radioList));
-					start.setText("Pauza");
-				} else if (start.getText().equals("Pauza")) {
-					player.pauseButton(selectedVideoPath.getText());
-					chart.pauseDraw(selectedFilePath.getText());
-					start.setText("Start");
-				} else if (start.getText().equals("Reset")) {
-					chart.startDraw(selectedFilePath.getText(), true, getSpeed(radioList));
-					player.startButton(selectedVideoPath.getText(), true, getSpeed(radioList));
-					start.setText("Pauza");
+			start.addActionListener(new ActionListener() {
+				List<JRadioButton> radioList = Arrays.asList(speed1, speed2, speed3);
+				public void actionPerformed(ActionEvent e) {
+					System.out.println("videoStartTime.getText() " + videoStartTime.getText());
+					double test = getTimeInMilis(videoStartTime.getText());
+					if (start.getText().equals("Start")) {
+						chart.startDraw(selectedFilePath.getText(), false, getSpeed(radioList));
+						player.startButton(selectedVideoPath.getText(), false, getSpeed(radioList));
+						start.setText("Pauza");
+					} else if (start.getText().equals("Pauza")) {
+						player.pauseButton(selectedVideoPath.getText());
+						chart.pauseDraw(selectedFilePath.getText());
+						start.setText("Start");
+					} else if (start.getText().equals("Reset")) {
+						chart.startDraw(selectedFilePath.getText(), true, getSpeed(radioList));
+						player.startButton(selectedVideoPath.getText(), true, getSpeed(radioList));
+						start.setText("Pauza");
+					}
 				}
-			}
-		});
+			});
+		
 		speed1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -161,6 +164,25 @@ public class SettingPanel extends JFrame {
 		radio = radio.stream().filter(s -> s.isSelected()).collect(Collectors.toList());
 		return new Double(radio.get(0).getName());
 	}
+	
+	public double getTimeInMilis(String time)  {
+		String[] parts = time.split(":");
+		System.out.println(" parts 0   " + parts[0]);
+		System.out.println(" parts 1   " + parts[1]);
+		System.out.println(" parts 2   " + parts[2]);
+		double hours = new Double(parts[0]);
+		hours = hours*3600000;
+		System.out.println("hours  " + hours);
+		double minutes = new Double(parts[1]);
+		minutes = minutes*60000;
+		System.out.println("minutes " + minutes);
+		double second = new Double(parts[2]);
+		second = second*1000;
+		System.out.println("second " + second);
+		double sum = hours + minutes + second;
+		System.out.println("hours + minutes + second " + sum);
+		return sum;
+	}
 
 	private void addElementsToPanel() {
 		constraints.anchor = GridBagConstraints.WEST;
@@ -182,7 +204,6 @@ public class SettingPanel extends JFrame {
 		line4.add(graphStartTimeLabel);
 		line4.add(graphStartTime);
 		line5.add(start);
-		line5.add(reset);
 		line5.add(resetSetting);
 		line5.add(speed1);
 		line5.add(speed2);

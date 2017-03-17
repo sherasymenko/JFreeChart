@@ -27,6 +27,12 @@ public class SceneGenerator {
 	private ChangeListener<Duration> progressChangeListener;
 	private MediaPlayer player;
 	private MediaView mediaView;
+	private double startTime;
+
+	public SceneGenerator(double startTime) {
+		super();
+		this.startTime = startTime;
+	}
 
 	public MediaView getMediaView() {
 		return mediaView;
@@ -46,7 +52,7 @@ public class SceneGenerator {
 				setCurrentlyPlaying(newPlayer);
 			}
 		});
-		player.setStartTime(new Duration(new Double(3000)));
+		//player.setStartTime(new Duration(startTime));
 		mediaView.setMediaPlayer(player);
 	
 		setCurrentlyPlaying(mediaView.getMediaPlayer());
@@ -79,7 +85,8 @@ public class SceneGenerator {
 	}
 
 	public MediaPlayer createPlayer(String aMediaSrc) throws MediaException {
-		final MediaPlayer player = new MediaPlayer(new Media(aMediaSrc));
+		Media media = new Media(aMediaSrc);
+		final MediaPlayer player = new MediaPlayer(media);
 		player.setOnError(new Runnable() {
 			@Override
 			public void run() {

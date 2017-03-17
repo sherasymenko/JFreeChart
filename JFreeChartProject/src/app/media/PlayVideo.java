@@ -23,7 +23,7 @@ public class PlayVideo {
 	public void startButton(String videoPath, boolean toClean, double speed) {
 		if (toClean)
 			sg.getMediaView().getMediaPlayer().stop();
-		sg.getMediaView().getMediaPlayer().setRate(speed);
+	//	sg.getMediaView().getMediaPlayer().setRate(speed);
 		sg.getMediaView().getMediaPlayer().play();
 	}
 
@@ -31,8 +31,8 @@ public class PlayVideo {
 		sg.getMediaView().getMediaPlayer().pause();
 	}
 
-	public void selectVideo(String videoPath) throws MediaException {
-		sg = new SceneGenerator();
+	public void selectVideo(String videoPath, double startTime) throws MediaException {
+		sg = new SceneGenerator(startTime);
 		Scene scene = sg.createScene(videoPath);
 		fxPanel.setScene(scene);
 	}

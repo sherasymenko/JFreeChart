@@ -5,7 +5,6 @@ import javax.swing.SwingUtilities;
 import org.jfree.ui.RefineryUtilities;
 import app.graph.OpenSheet;
 import app.media.PlayVideo;
-import app.ui.SettingPanel;
 
 public class Main {
 	private static OpenSheet sheet = new OpenSheet("", "");

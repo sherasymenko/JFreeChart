@@ -19,24 +19,18 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-import app.ui.SettingPanel;
-import app.util.DataForChart;
-import app.util.FileReader;
+import app.main.SettingPanel;
 
 @SuppressWarnings("serial")
 public class OpenSheet extends ApplicationFrame {
-	private XYSeries roll = new XYSeries("Roll");
+	private XYSeries[] graphs;
+	/*private XYSeries roll = new XYSeries("Roll");
 	private XYSeries pitch = new XYSeries("Pitch");
-	private XYSeries yaw = new XYSeries("Yaw");
-
-	private String[][] data;
-	private Map<String, String[]> allData = new HashMap<String, String[]>();
+	private XYSeries yaw = new XYSeries("Yaw");*/
 	private JPanel content = new JPanel(new BorderLayout());
 	private XYSeriesCollection dataset = new XYSeriesCollection();
 	private Timer timer;
 	private FileReader reader;
-	private String[] headers;
-	//private DataForChart dataForChart;
 	private String chartTitle;
 	private ChartPanel chartPanel;
 	private JFreeChart xylineChart;
@@ -56,12 +50,13 @@ public class OpenSheet extends ApplicationFrame {
 		setContentPane(content);
 	}
 
-	public void addData(String filePath) throws IOException {
-		reader = new FileReader(filePath);
-		headers = reader.getHeaders();
-		data = reader.getData();
-		allData = reader.getAllData();
-		//dataForChart = new DataForChart(chartTitle, headers, allData);
+	public void addData(String filePath, double startTime) throws IOException {
+		reader = new FileReader(filePath, startTime);
+		graphs = new XYSeries[reader.getHeaders().length];
+		for(int i = 0;i < graphs.length; i++){
+			graphs[i] = new XYSeries(reader.getHeaders()[i]);
+		}	
+		
 		xylineChart = ChartFactory.createXYLineChart(chartTitle, "Time", "Value", createDataset(),
 				PlotOrientation.VERTICAL, true, true, false);
 		xylineChart.getXYPlot().getDomainAxis().setRange(reader.getxMin(), reader.getxMax());
@@ -72,9 +67,9 @@ public class OpenSheet extends ApplicationFrame {
 
 	public void startDraw(String filePath, boolean toClean, double speed) {
 		if (toClean) {
-			roll.clear();
-			pitch.clear();
-			yaw.clear();
+			for(int i = 0;i < graphs.length; i++){
+				graphs[i].clear();
+			}		
 			index = 0;
 			timeTest = 0;
 		}
@@ -91,15 +86,9 @@ public class OpenSheet extends ApplicationFrame {
 	}
 
 	private XYDataset createDataset() {
-		/*int dataNumber = reader.getDataNumber();
-		int headerNumber = reader.getHeaderNumber();
-		for (int i = 0; i < dataNumber; i++) {
-			for (int j = 0; j < headerNumber; j++) {
-			}
-		}*/
-		dataset.addSeries(roll);
-		dataset.addSeries(pitch);
-		dataset.addSeries(yaw);
+		for(int i = 0;i < graphs.length; i++){
+			dataset.addSeries(graphs[i]);
+		}
 		return dataset;
 	}
 
@@ -119,65 +108,37 @@ public class OpenSheet extends ApplicationFrame {
 	}
 
 	private class Draw extends TimerTask {
-		private DataForChart dataForChart;
 		private int i = 0;
 		private double time = 0;
-		String filePath = "";
-private FileReader reader = null;
-		public Draw(DataForChart dataForChart, Timer timer, int index, double time, boolean isClean) {
-			this.dataForChart = dataForChart;
-			i = index;
-			this.time = time;
-			
-		}
+		private String filePath = "";
+		private FileReader reader = null;
+		private Map<String, String[]> allData = new HashMap<String, String[]>();
 
-		
 		public Draw(FileReader reader, Timer timer, int index, double time, boolean isClean, String filePath) {
 			this.reader = reader;
 			i = index;
 			this.time = time;
 			this.filePath = filePath;
+			this.allData = reader.getAllData();
 		}
+
 		public Draw() {
 		}
 
 		public void run() {
-
-			
 			try {
-				if ((reader.getLineNumber(filePath)-1) != i) {
-					String[][] dataTest = dataForChart.getData();
-					double rollValue = new Double(dataTest[i][1]);
-					double pitchValue = new Double(dataTest[i][2]);
-					double yawValue = new Double(dataTest[i][3]);
-					roll.add(time, rollValue);
-					pitch.add(time, pitchValue);
-					yaw.add(time, yawValue);
-					time = time + 1 / dataForChart.getPeriod();
+				if ((reader.getRowsNumber(filePath) - 1) != i) {
+					for(int j = 0;j < graphs.length; j++){
+						graphs[j].add(time, new Double(allData.get(reader.getHeaders()[j])[i]));
+					}
+					time = time + 1 / reader.getPeriod();
 					i++;
 				} else {
 					SettingPanel.setStartButtonOnReset();
 					timer.cancel();
 				}
 			} catch (NumberFormatException | IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			
-			
-			if (data.length != i) {
-				String[][] dataTest = dataForChart.getData();
-				double rollValue = new Double(dataTest[i][1]);
-				double pitchValue = new Double(dataTest[i][2]);
-				double yawValue = new Double(dataTest[i][3]);
-				roll.add(time, rollValue);
-				pitch.add(time, pitchValue);
-				yaw.add(time, yawValue);
-				time = time + 1 / dataForChart.getPeriod();
-				i++;
-			} else {
-				SettingPanel.setStartButtonOnReset();
-				timer.cancel();
 			}
 		}
 
