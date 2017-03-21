@@ -64,6 +64,26 @@ public class OpenSheet extends ApplicationFrame {
 		chartPanel.setChart(xylineChart);
 		chartPanel.setMouseZoomable(true);
 	}
+	
+	public void resetChart(){
+		content.removeAll();
+		content.revalidate();
+		content.repaint();
+			for(int i = 0;i < graphs.length; i++){
+				graphs[i].clear();
+			}		
+			index = 0;
+			timeTest = 0;
+		dataset = new XYSeriesCollection();
+		index = 0;
+		timer.cancel();
+		xylineChart = ChartFactory.createXYLineChart(chartTitle, "", "", new XYSeriesCollection());
+		chartPanel = new ChartPanel(xylineChart);
+		chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
+		chartPanel.setMouseZoomable(false);
+		content.add(chartPanel, BorderLayout.CENTER);
+		setContentPane(content);
+	}
 
 	public void startDraw(String filePath, boolean toClean, double speed) {
 		if (toClean) {
@@ -128,13 +148,14 @@ public class OpenSheet extends ApplicationFrame {
 		public void run() {
 			try {
 				if ((reader.getRowsNumber(filePath) - 1) != i) {
+					System.out.println("!!!!!!!!!!!!!!!!!!!!!!!! " + (reader.getRowsNumber(filePath) - 1));
 					for(int j = 0;j < graphs.length; j++){
 						graphs[j].add(time, new Double(allData.get(reader.getHeaders()[j])[i]));
 					}
 					time = time + 1 / reader.getPeriod();
 					i++;
 				} else {
-					SettingPanel.setStartButtonOnReset();
+					SettingPanel.setStartButton();
 					timer.cancel();
 				}
 			} catch (NumberFormatException | IOException e) {

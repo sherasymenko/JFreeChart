@@ -38,8 +38,9 @@ public class SettingPanel extends JFrame {
 	private JLabel errorMessage = new JLabel("Znaleziono b³êdy: ");
 	private JLabel videoStartTimeLabel = new JLabel("Czas rozpoczêcia wideo");
 	private JLabel graphStartTimeLabel = new JLabel("Czas rozpoczêcia wykresu");
-	private JTextField selectedFilePath = new JTextField("D:\\STUDIA\\PRACA_MAGISTERSKA\\Nagrania\\11.02.2017\\txt\\Svieta_badanie1_p_s16_l17_u18_2-000_00342816.txt", 50);
-	private JTextField selectedVideoPath = new JTextField("D:\\STUDIA\\PRACA_MAGISTERSKA\\Nagrania\\11.02.2017\\Video\\Svieta_badanie1_p_s16_l17_u18_2.mp4", 50);
+	private JLabel speedLabel = new JLabel("Szybkoœæ");
+	private JTextField selectedFilePath = new JTextField("C:\\Users\\sherasymenko\\Downloads\\wykres\\Svieta_badanie1_p_s16_l17_u18_2-000_00342816.txt", 50);
+	private JTextField selectedVideoPath = new JTextField("C:\\Users\\sherasymenko\\Downloads\\wykres\\Svieta_badanie1_p_s16_l17_u18_2.mp4", 50);
 	private JTextField videoStartTime = new JTextField("00:00:00.000", 12);
 	private JTextField graphStartTime = new JTextField("00:00:00.000", 12);
 	private JPanel newPanel = new JPanel();
@@ -48,9 +49,10 @@ public class SettingPanel extends JFrame {
 	private JPanel line3 = new JPanel();
 	private JPanel line4 = new JPanel();
 	private JPanel line5 = new JPanel();
-	private JRadioButton speed1 = new JRadioButton("0.25X");
-	private JRadioButton speed2 = new JRadioButton("0.5X");
-	private JRadioButton speed3 = new JRadioButton("1X");
+	private JRadioButton speed1 = new JRadioButton("0.1");
+	private JRadioButton speed2 = new JRadioButton("0.25");
+	private JRadioButton speed3 = new JRadioButton("0.5");
+	private JRadioButton speed4 = new JRadioButton("1");
 	private GridBagConstraints constraints = new GridBagConstraints();
 	private OpenSheet chart = null;
 	private PlayVideo player = null;
@@ -64,14 +66,28 @@ public class SettingPanel extends JFrame {
 		panelSetting();
 	}
 
-	public static void setStartButtonOnReset() {
-		start.setText("Reset");
+	public static void setStartButton() {
+		start.setText("Start");
 
 	}
 
 	private void elementsSetting() {
 		errorMessage.setVisible(false);
 		errorMessage.setForeground(Color.red);
+		resetSetting.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				chart.resetChart();
+				player.resetPlayer();
+				//selectedFilePath.setText("");
+				//selectedVideoPath.setText("");
+				speed1.setSelected(false);
+				speed2.setSelected(false);
+				speed3.setSelected(false);
+				speed4.setSelected(true);
+				videoStartTime.setText("00:00:00.000");
+				graphStartTime.setText("00:00:00.000");
+			}
+		});
 		refreshSelectedFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -111,7 +127,7 @@ public class SettingPanel extends JFrame {
 			}
 		});
 			start.addActionListener(new ActionListener() {
-				List<JRadioButton> radioList = Arrays.asList(speed1, speed2, speed3);
+				List<JRadioButton> radioList = Arrays.asList(speed1, speed2, speed3, speed4);
 				public void actionPerformed(ActionEvent e) {
 					System.out.println("videoStartTime.getText() " + videoStartTime.getText());
 					double test = getTimeInMilis(videoStartTime.getText());
@@ -137,6 +153,7 @@ public class SettingPanel extends JFrame {
 				if (speed1.isSelected()) {
 					speed2.setSelected(false);
 					speed3.setSelected(false);
+					speed4.setSelected(false);
 				}
 			}
 		});
@@ -146,6 +163,7 @@ public class SettingPanel extends JFrame {
 				if (speed2.isSelected()) {
 					speed1.setSelected(false);
 					speed3.setSelected(false);
+					speed4.setSelected(false);
 				}
 			}
 		});
@@ -155,6 +173,18 @@ public class SettingPanel extends JFrame {
 				if (speed3.isSelected()) {
 					speed1.setSelected(false);
 					speed2.setSelected(false);
+					speed4.setSelected(false);
+				}
+			}
+		});
+		
+		speed4.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if (speed4.isSelected()) {
+					speed1.setSelected(false);
+					speed2.setSelected(false);
+					speed3.setSelected(false);
 				}
 			}
 		});
@@ -188,10 +218,11 @@ public class SettingPanel extends JFrame {
 		constraints.anchor = GridBagConstraints.WEST;
 		constraints.insets = new Insets(10, 10, 10, 10);
 		newPanel.setLayout(new BoxLayout(newPanel, BoxLayout.Y_AXIS));
-		speed1.setName("0.25");
-		speed2.setName("0.5");
-		speed3.setName("1");
-		speed3.setSelected(true);
+		speed1.setName("0.1");
+		speed2.setName("0.25");
+		speed3.setName("0.5");
+		speed4.setName("1");
+		speed4.setSelected(true);
 		line1.add(errorMessage);
 		line2.add(refreshSelectedFile);
 		line2.add(selectedFilePath);
@@ -203,11 +234,13 @@ public class SettingPanel extends JFrame {
 		line4.add(videoStartTime);
 		line4.add(graphStartTimeLabel);
 		line4.add(graphStartTime);
+		line4.add(speedLabel);
+		line4.add(speed1);
+		line4.add(speed2);
+		line4.add(speed3);
+		line4.add(speed4);
 		line5.add(start);
 		line5.add(resetSetting);
-		line5.add(speed1);
-		line5.add(speed2);
-		line5.add(speed3);
 		newPanel.add(line1);
 		newPanel.add(line2);
 		newPanel.add(line3);
